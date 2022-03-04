@@ -2,24 +2,10 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Outbreak2014-2020</title>    
+<title>Outbreak2014-2020</title>
 
-
-    
-
-    
-<meta http-equiv='Cache-Control' content='no-cache, no-store, must-revalidate' />
-<meta http-equiv='Pragma' content='no-cache' />
-<meta http-equiv='Expires' content='0' />    
-
-
-<link href='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css' rel='stylesheet' />     
-<link href='style.css' rel='stylesheet' />
-
-
-<script src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js'></script>
-
- 
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
 <style>
 body { margin: 0; padding: 0; }
 #map { position: absolute; top: 0; bottom: 0; width: 100%; }
@@ -37,10 +23,10 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY2xhcmFyaXNrIiwiYSI6ImNrbjk5cGxoMjE1cHIydm4xN
 const map = new mapboxgl.Map({
 container: 'map',
 style: 'mapbox://styles/mapbox/dark-v10',
-maxZoom: 9,
-minZoom: 1,
+maxZoom: 5.99,
+minZoom: 4,
 zoom: 5,
-center: [-79, 50]
+center: [-79.48, 48.6]
 });
  
 const frameCount = 7;
@@ -55,10 +41,10 @@ map.addSource('tbe', {
 type: 'image',
 url: getPath(),
 coordinates: [
-[-95.16119498965702, 70.13180670061539],
-[-29.346180792999917,70.13180670061539],
-[-29.346180792999917, 40],
-[-95.16119498965702, 40]
+[-95.16119498965702, 56.86127350500004],
+[-74.34618079299992, 56.86127350500004],
+[-74.34618079299992, 41.66908559200006],
+[-95.16119498965702, 41.66908559200006]
 ]
 });
 map.addLayer({

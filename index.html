@@ -37,7 +37,7 @@ return `patrick${currentImage}.gif`;
 }
  
 map.on('load', () => {
-map.addSource('radar', {
+map.addSource('tbe', {
 type: 'image',
 url: getPath(),
 coordinates: [
@@ -50,7 +50,7 @@ coordinates: [
 map.addLayer({
 id: 'radar-layer',
 'type': 'raster',
-'source': 'radar',
+'source': 'tbe',
 'paint': {
 'raster-fade-duration': 0
 }
@@ -58,7 +58,7 @@ id: 'radar-layer',
  
 setInterval(() => {
 currentImage = (currentImage + 1) % frameCount;
-map.getSource('radar').updateImage({ url: getPath() });
+map.getSource('tbe').updateImage({ url: getPath() });
 }, 200);
 });
 </script>

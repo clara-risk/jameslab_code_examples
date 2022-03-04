@@ -4,8 +4,6 @@
 <meta charset="utf-8">
 <title>Outbreak2014-2020</title>
 
-<link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
-<script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
 <style>
 body { margin: 0; padding: 0; }
 #map { position: absolute; top: 0; bottom: 0; width: 100%; }
@@ -22,7 +20,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY2xhcmFyaXNrIiwiYSI6ImNrbjk5cGxoMjE1cHIydm4xN
 
 const map = new mapboxgl.Map({
 container: 'map',
-style: 'mapbox://styles/mapbox/dark-v10',
+style: 'mapbox://styles/mapbox/light-v10',
 maxZoom: 9,
 minZoom: 1,
 zoom: 2,

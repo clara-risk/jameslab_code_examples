@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Outbreak2014-2020</title>
-<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
 <style>
@@ -22,11 +22,11 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY2xhcmFyaXNrIiwiYSI6ImNrbjk5cGxoMjE1cHIydm4xN
 
 const map = new mapboxgl.Map({
 container: 'map',
-style: 'mapbox://styles/mapbox/light-v10',
+style: 'mapbox://styles/mapbox/dark-v10',
 maxZoom: 5.99,
 minZoom: 4,
 zoom: 5,
-center: [-80, 50]
+center: [-79.48, 48.6]
 });
  
 const frameCount = 7;
@@ -41,10 +41,10 @@ map.addSource('tbe', {
 type: 'image',
 url: getPath(),
 coordinates: [
-[-95.16119498965702, 56.86127350500004],
-[-74.34618079299992, 56.86127350500004],
-[-74.34618079299992, 41.72946680438466],
-[-95.16119498965702, 41.72946680438466]
+[-95.16119498965702, 62.593817450000074],
+[-57.10033118399991, 62.593817450000074],
+[-57.10033118399991, 41.66908559200006],
+[-95.16119498965702, 41.66908559200006]
 ]
 });
 map.addLayer({

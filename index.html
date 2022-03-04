@@ -34,7 +34,7 @@ let currentImage = 0;
 map.on('load', () => {
 map.addSource('radar', {
 type: 'image',
-url: 'https://github.com/clara-risk/jameslab_code_examples/blob/main/patrick.gif',
+url: 'patrick.gif',
 coordinates: [
 [-95.16119498965702, 56.86127350500004],
 [-74.34618079299992, 56.86127350500004],
@@ -53,7 +53,7 @@ id: 'radar-layer',
 
 setInterval(() => {
 currentImage = (currentImage + 1) % frameCount;
-map.getSource('radar').updateImage({ url: 'https://github.com/clara-risk/jameslab_code_examples/blob/main/patrick.gif' });
+map.getSource('radar').updateImage({ url: 'patrick.gif' });
 }, 200);
 });
 

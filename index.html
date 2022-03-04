@@ -19,6 +19,7 @@ const mapbox_token = 'pk.eyJ1IjoiY2xhcmFyaXNrIiwiYSI6ImNpam4yZzRpNjAwY2J1Zm01bnl
 
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2xhcmFyaXNrIiwiYSI6ImNrbjk5cGxoMjE1cHIydm4xNW55cmZ1cXgifQ.3CXp0GaWY1S7iMcPP8n9Iw';
+
 const map = new mapboxgl.Map({
 container: 'map',
 style: 'mapbox://styles/mapbox/dark-v10',
@@ -28,13 +29,17 @@ zoom: 5,
 center: [-82.48, 48.6]
 });
  
-const frameCount = 5;
+const frameCount = 7;
 let currentImage = 0;
-
+ 
+function getPath() {
+return `patrick${currentImage}.gif`;
+}
+ 
 map.on('load', () => {
 map.addSource('radar', {
 type: 'image',
-url: 'patrick.gif',
+url: getPath(),
 coordinates: [
 [-95.16119498965702, 56.86127350500004],
 [-74.34618079299992, 56.86127350500004],
@@ -50,13 +55,12 @@ id: 'radar-layer',
 'raster-fade-duration': 0
 }
 });
-
+ 
 setInterval(() => {
 currentImage = (currentImage + 1) % frameCount;
-map.getSource('radar').updateImage({ url: 'patrick.gif' });
+map.getSource('radar').updateImage({ url: getPath() });
 }, 200);
 });
-
 </script>
  
 </body>

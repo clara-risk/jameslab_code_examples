@@ -37,7 +37,7 @@ def gen_rand(base,top):
 if __name__ == "__main__":
     #Read polygons
     df_underlying = read_data('control_area_wgs84.shp')
-    #df_underlying = read_data('dryden_underlying.shp')
+    df_affected = read_data('dryden_underlying.shp').to_crs('ESRI:102001')
     #print(df_underlying)
 
     #Read csv of sites and filter
@@ -82,6 +82,7 @@ if __name__ == "__main__":
     df_45 = read_data('control_45m_buff.shp')
     df_clip = df_sites_buffer.clip(df_underlying)
     df_clip_proj = df_clip.to_crs('ESRI:102001')
+    print(df_clip_proj)
     
     counts = []
     lats = []
@@ -117,6 +118,31 @@ if __name__ == "__main__":
             points = gpd.overlay(points, df_45, how='difference')
             
             points2 = points.clip(gpd.GeoDataFrame(geometry=df_clip_proj,crs='ESRI:102001'))
+            print(points2)
+            polygon0 = polygon
+            print(polygon0)
+            polygon1 = polygon0.difference(df_45['geometry'].unary_union)
+            fig, ax = plt.subplots(1,1)
+            gpd.GeoDataFrame(geometry=[polygon1]).plot(ax=ax)
+            plt.show()
+            print(polygon1)
+            #polygon2 = gpd.GeoSeries(polygon1,crs='ESRI:102001').difference(df_affected['geometry'])
+            #polygon2 = gpd.GeoDataFrame(geometry=[polygon1],crs='ESRI:102001')
+            if len(points2) > 0:
+                fig, ax = plt.subplots(1,1)
+                gpd.GeoDataFrame(geometry=df_clip_proj,crs='ESRI:102001').plot(ax=ax)
+                plt.show()
+                polygon3 = gpd.GeoDataFrame(geometry=[polygon1],crs='ESRI:102001').clip(gpd.GeoDataFrame(geometry=df_clip_proj,crs='ESRI:102001'),keep_geom_type=True)
+                print(polygon3)
+                fig, ax = plt.subplots(1,1)
+                polygon3.plot(ax=ax)
+                plt.show()
+                polygon5 = polygon3.difference(df_affected['geometry'])
+                print(polygon5)
+                polygon5.to_file(driver = 'ESRI Shapefile', filename= "poly_dryden_"+str(n)+".shp")
+            else:
+                polygon1.to_file(driver = 'ESRI Shapefile', filename= "poly_dryden_"+str(n)+".shp")
+            
             if len(points2) > 0:
                 points = points2
 ##            if len(points) <= 500:
@@ -189,7 +215,7 @@ if __name__ == "__main__":
                                                     a['Latitude']),crs='ESRI:102001').to_crs('EPSG:4326')
     a['Lon_Proj'] = list(b['geometry'].x)
     a['Lat_Proj'] = list(b['geometry'].y)
-    a.to_csv('dryden_500_control_10m_redo3.csv', index=False)
+    #a.to_csv('dryden_500_control_10m_redo3.csv', index=False)
     
     
     

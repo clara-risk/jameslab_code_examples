@@ -23,7 +23,7 @@ def read_data(fp):
 #Generate a random number
 
 def gen_rand(base,top):
-    random.seed(42)
+    random.seed(500)
     x = random.randint(base,top)
     return x 
 #Select a point
@@ -37,18 +37,18 @@ def gen_rand(base,top):
 if __name__ == "__main__":
     #Read polygons
     #df_underlying = read_data('dissolved.shp')
-    #df_underlying = read_data('control_area_wgs84.shp')
-    #df_underlying = read_data('north_bay_polygons.shp')
-    df_underlying = read_data('timmins_control_area_buffer2.shp').to_crs('ESRI:102001')
+    df_underlying = read_data('geojson/dryden_shp_correct.shp')
     #print(df_underlying)
 
     #Read csv of sites and filter
     df_sites = pd.read_csv('sites.csv', encoding= 'unicode_escape')
     #print(df_sites)
-    df_sites = df_sites[df_sites['Project'] == 'SBW_T']
-    df_sites = df_sites[df_sites['Description'] == 'Control'] #!=
+    df_sites = df_sites[df_sites['Project'] == 'JPBW']
+    #df_sites = df_sites[df_sites['Description'] != 'Control'] #!=
     #df_sites = df_sites[df_sites['Note'] != "Matt's"]
-    #df_sites = df_sites[df_sites['Name'] == '2014_Site2']
+    #df_sites = df_sites[df_sites['Name'] == "F15"]
+    #df_sites = df_sites[df_sites['Name'].isin(["F15","ElvaLake","2019_Site1","2020_Site3"])]
+    print(df_sites)
     df_sites_geom= gpd.GeoDataFrame(df_sites, geometry=
                                     gpd.points_from_xy(df_sites['Longitude'],
                                                     df_sites['Latitude']),crs='EPSG:4326')
@@ -58,57 +58,52 @@ if __name__ == "__main__":
     df_sites_proj = df_sites_geom.to_crs('ESRI:102001')
     #print(df_sites_proj)
     
-    df_sites_buffer = df_sites_proj.buffer(500).to_crs('EPSG:4326')
+    #df_sites_buffer = df_sites_proj.buffer(500).to_crs('EPSG:4326')
     #print(df_sites_buffer)
-    fig, ax = plt.subplots(1,1)
-    df_sites_buffer.plot(ax=ax)
-    plt.show()
+    #fig, ax = plt.subplots(1,1)
+    #df_sites_buffer.plot(ax=ax)
+    #plt.show()
 
     #Clip buffer with constraints
 
-    df_clip = df_sites_buffer #.clip(df_underlying)
-    fig, ax = plt.subplots(1,1)
-    df_clip.plot(ax=ax)
-    plt.show()
+##    df_clip = df_sites_buffer.clip(df_underlying)
+##    print(len(df_clip))
+##    print(df_clip)
+##    if len(df_clip) == 0:
+    #df_clip=df_sites_buffer
+    #fig, ax = plt.subplots(1,1)
+    #df_clip.plot(ax=ax)
+    #plt.show()
 
     #Make the point grid
-    df_explode = df_clip.to_crs('ESRI:102001') #.explode()
-    df_explode = gpd.GeoDataFrame(df_sites_proj,geometry=df_explode,crs='ESRI:102001')
-    print(df_explode)
-
-    #df_45 = read_data('actual_45m_buffer.shp')
+    df_explode = df_underlying.to_crs(crs='ESRI:102001')
+    #df_explode = gpd.GeoDataFrame(df_sites_proj,geometry=df_explode,crs='ESRI:102001') 
+    
+    df_45 = read_data('geojson/dryden_45m_buffer.shp')
     #df_45 = read_data('control_45m_buff.shp')
-    #df_45 = read_data('northbay_45m_buff.shp')
-    df_45 = read_data('timmins_45m_buffer.shp')
-    df_clip_proj = df_clip.to_crs('ESRI:102001')
+    #df_clip = df_sites_buffer.clip(df_underlying)
+    #df_clip_proj = df_clip.to_crs('ESRI:102001')
     
     counts = []
     lats = []
     lons = []
     names = [] 
     count = 0 
-    for y,n,polygon in zip(df_explode['Year'],df_explode['Name'],list(df_explode['geometry'])):
+    for n,polygon in zip(df_explode['layer'],list(df_explode['geometry'])):
         count +=1
-        print(n)
-        print(polygon)
-
-        #Clip buffer with constraints
-        df_poly = gpd.GeoDataFrame(geometry=[polygon],crs='ESRI:102001')
-        df_clip = df_poly.clip(df_underlying)
-        if len(df_clip) == 0:
-            df_clip=df_poly
-        polygon = df_clip['geometry']
-        fig, ax = plt.subplots(1,1)
-        df_clip.plot(ax=ax)
-        plt.show()
-        if n != '2019_Site 2': 
+        if n == 'poly_dryden_2020_Site6': #or n == 'poly_dryden_2019_Site1' or n == 'poly_dryden_2020_Site3': #or n=='poly_dryden_ElvaLake': 
+            print(n)
+            fig, ax = plt.subplots(1,1)
+            gpd.GeoDataFrame(geometry=[polygon]).plot(ax=ax)
+            plt.show()
+            
             spacing = 5
-            print(polygon.bounds)
-            xmax = polygon.bounds['maxx']
-            xmin = polygon.bounds['minx']
 
-            ymax = polygon.bounds['maxy']
-            ymin = polygon.bounds['miny']
+            xmax = polygon.bounds[0]
+            xmin = polygon.bounds[2]
+
+            ymax = polygon.bounds[3]
+            ymin = polygon.bounds[1]
             num_col = int(abs(xmax - xmin) / spacing)
 
             num_row = int(abs(ymax - ymin) / spacing)
@@ -119,50 +114,53 @@ if __name__ == "__main__":
             Xi,Yi = np.meshgrid(Xi,Yi)
 
             points = [Point(x) for x in zip(Xi.flatten(),Yi.flatten())]
-            points = gpd.GeoDataFrame(geometry=points,crs='ESRI:102001')
-            points = gpd.overlay(points, df_45, how='difference')
-            points = points.clip(gpd.GeoDataFrame(geometry=polygon,crs='ESRI:102001'))
-            print(len(points))
+            points = gpd.GeoDataFrame(geometry=gpd.GeoSeries(points),crs='ESRI:102001')
+            #points = gpd.overlay(points, df_45, how='difference')
+            print(points)
+            points = points.clip(gpd.GeoDataFrame(geometry=[polygon],crs='ESRI:102001'))
+            print(points)
 
-
-            polygon0 = polygon
-            print(polygon0)
-            polygon1 = polygon0.difference(df_45['geometry'].unary_union)
-            fig, ax = plt.subplots(1,1)
-            gpd.GeoDataFrame(geometry=polygon1).plot(ax=ax)
-            plt.show()
-            print(polygon1)
-            #polygon2 = gpd.GeoSeries(polygon1,crs='ESRI:102001').difference(df_affected['geometry'])
-            #polygon2 = gpd.GeoDataFrame(geometry=[polygon1],crs='ESRI:102001')
-            if len(points) > 0:
-                fig, ax = plt.subplots(1,1)
-                gpd.GeoDataFrame(geometry=df_clip_proj,crs='ESRI:102001').plot(ax=ax)
-                plt.show()
-                polygon3 = gpd.GeoDataFrame(geometry=polygon1,crs='ESRI:102001').clip(gpd.GeoDataFrame(geometry=df_clip_proj,crs='ESRI:102001'),keep_geom_type=True)
-                print(polygon3)
-                fig, ax = plt.subplots(1,1)
-                polygon3.plot(ax=ax)
-                plt.show()
-                #polygon5 = polygon3.difference(df_affected['geometry'])
-                #print(polygon5)
-                polygon3.to_file(driver = 'ESRI Shapefile', filename= "poly_timmins_"+str(n)+".shp")
-            else:
-                polygon6 = gpd.GeoDataFrame(geometry=polygon,crs='ESRI:102001')
-                polygon6.to_file(driver = 'ESRI Shapefile', filename= "poly_timmins_"+str(n)+".shp")
-            if n == '2019_Site 2':
-                spacing = 0.2
-                num_col = int(abs(xmax - xmin) / spacing)
-
-                num_row = int(abs(ymax - ymin) / spacing)
-
-
-                Yi = np.linspace(ymin,ymax,num_row+1)
-                Xi = np.linspace(xmin,xmax,num_col+1)
-                Xi,Yi = np.meshgrid(Xi,Yi)
-                points = [Point(x) for x in zip(Xi.flatten(),Yi.flatten())]
-                points = gpd.GeoDataFrame(geometry=points,crs='ESRI:102001')
-                points = gpd.overlay(points, df_45, how='difference')
-                points = points.clip(gpd.GeoDataFrame(geometry=polygon,crs='ESRI:102001'))
+##            polygon0 = polygon
+##            print(polygon0)
+##            polygon1 = polygon0.difference(df_45['geometry'].unary_union)
+##            fig, ax = plt.subplots(1,1)
+##            gpd.GeoDataFrame(geometry=[polygon1]).plot(ax=ax)
+##            plt.show()
+##            print(polygon1)
+##            #polygon2 = gpd.GeoSeries(polygon1,crs='ESRI:102001').difference(df_affected['geometry'])
+##            #polygon2 = gpd.GeoDataFrame(geometry=[polygon1],crs='ESRI:102001')
+##            if len(points2) > 0:
+##                fig, ax = plt.subplots(1,1)
+##                gpd.GeoDataFrame(geometry=df_clip_proj,crs='ESRI:102001').plot(ax=ax)
+##                plt.show()
+##                polygon3 = gpd.GeoDataFrame(geometry=[polygon1],crs='ESRI:102001').clip(gpd.GeoDataFrame(geometry=df_clip_proj,crs='ESRI:102001'),keep_geom_type=True)
+##                print(polygon3)
+##                fig, ax = plt.subplots(1,1)
+##                polygon3.plot(ax=ax)
+##                plt.show()
+##                #polygon5 = polygon3.difference(df_affected['geometry'])
+##                #print(polygon5)
+##                polygon3.to_file(driver = 'ESRI Shapefile', filename= "poly_dryden_"+str(n)+".shp")
+##            else:
+##                polygon6 = gpd.GeoDataFrame(geometry=[polygon],crs='ESRI:102001')
+##                polygon6.to_file(driver = 'ESRI Shapefile', filename= "poly_dryden_"+str(n)+".shp")
+##            if len(points2) > 0:
+##                points = points2
+##            if len(points) <= 500:
+##                spacing = 1
+##                num_col = int(abs(xmax - xmin) / spacing)
+##
+##                num_row = int(abs(ymax - ymin) / spacing)
+##
+##
+##                Yi = np.linspace(ymin,ymax,num_row+1)
+##                Xi = np.linspace(xmin,xmax,num_col+1)
+##                Xi,Yi = np.meshgrid(Xi,Yi)
+##                points = [Point(x) for x in zip(Xi.flatten(),Yi.flatten())]
+##                points = gpd.GeoDataFrame(geometry=points,crs='ESRI:102001')
+##                points = gpd.overlay(points, df_45, how='difference')
+##                if len(df_clip_proj) > 0: 
+##                    points = points.clip(gpd.GeoDataFrame(geometry=df_clip_proj,crs='ESRI:102001'))
             fig, ax = plt.subplots(1,1)
             #points = gpd.GeoDataFrame(geometry=points,crs='ESRI:102001')
             points.plot(ax=ax)
@@ -218,7 +216,7 @@ if __name__ == "__main__":
                                                     a['Latitude']),crs='ESRI:102001').to_crs('EPSG:4326')
     a['Lon_Proj'] = list(b['geometry'].x)
     a['Lat_Proj'] = list(b['geometry'].y)
-    #a.to_csv('plots_timmins_control_500_5.csv', index=False)
+    a.to_csv('dryden_2020Site6_seed500.csv', index=False)
     
     
     

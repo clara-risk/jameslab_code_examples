@@ -23,7 +23,7 @@ def read_data(fp):
 #Generate a random number
 
 def gen_rand(base,top):
-    random.seed(42)
+    random.seed(10) #42
     x = random.randint(base,top)
     return x 
 #Select a point
@@ -46,9 +46,9 @@ if __name__ == "__main__":
     df_sites = pd.read_csv('sites.csv', encoding= 'unicode_escape')
     #print(df_sites)
     df_sites = df_sites[df_sites['Project'] == 'SBW_NB']
-    #df_sites = df_sites[df_sites['Description'] != 'Control'] #!=
+    df_sites = df_sites[df_sites['Description'] == 'Control'] #!=
     #df_sites = df_sites[df_sites['Note'] != "Matt's"]
-    df_sites = df_sites[df_sites['Name'] == '2014_Site2']
+    #df_sites = df_sites[df_sites['Name'] != '2014_Site2']
     df_sites_geom= gpd.GeoDataFrame(df_sites, geometry=
                                     gpd.points_from_xy(df_sites['Longitude'],
                                                     df_sites['Latitude']),crs='EPSG:4326')
@@ -104,7 +104,7 @@ if __name__ == "__main__":
         df_clip.plot(ax=ax)
         plt.show()
         if n != 'None': 
-            spacing = 5
+            spacing = 10
             print(polygon.bounds)
             xmax = polygon.bounds['maxx']
             xmin = polygon.bounds['minx']
@@ -125,6 +125,32 @@ if __name__ == "__main__":
             points = gpd.overlay(points, df_45, how='difference')
             points = points.clip(gpd.GeoDataFrame(geometry=polygon,crs='ESRI:102001'))
             print(len(points))
+
+            
+##            polygon0 = polygon
+##            print(polygon0)
+##            polygon1 = polygon0.difference(df_45['geometry'].unary_union)
+##            fig, ax = plt.subplots(1,1)
+##            gpd.GeoDataFrame(geometry=polygon1).plot(ax=ax)
+##            plt.show()
+##            print(polygon1)
+##            #polygon2 = gpd.GeoSeries(polygon1,crs='ESRI:102001').difference(df_affected['geometry'])
+##            #polygon2 = gpd.GeoDataFrame(geometry=[polygon1],crs='ESRI:102001')
+##            if len(points) != None:
+##                fig, ax = plt.subplots(1,1)
+##                gpd.GeoDataFrame(geometry=df_clip_proj,crs='ESRI:102001').plot(ax=ax)
+##                plt.show()
+##                polygon3 = gpd.GeoDataFrame(geometry=polygon1,crs='ESRI:102001').clip(gpd.GeoDataFrame(geometry=df_clip_proj,crs='ESRI:102001'),keep_geom_type=True)
+##                print(polygon3)
+##                fig, ax = plt.subplots(1,1)
+##                polygon3.plot(ax=ax)
+##                plt.show()
+##                #polygon5 = polygon3.difference(df_affected['geometry'])
+##                #print(polygon5)
+##                polygon3.to_file(driver = 'ESRI Shapefile', filename= "poly_northbay_"+str(n)+".shp")
+##            else:
+##                polygon6 = gpd.GeoDataFrame(geometry=polygon,crs='ESRI:102001')
+##                polygon6.to_file(driver = 'ESRI Shapefile', filename= "poly_northbay_"+str(n)+".shp")
 ##            if len(points) <= 500:
 ##                spacing = 1
 ##                num_col = int(abs(xmax - xmin) / spacing)
@@ -195,7 +221,7 @@ if __name__ == "__main__":
                                                     a['Latitude']),crs='ESRI:102001').to_crs('EPSG:4326')
     a['Lon_Proj'] = list(b['geometry'].x)
     a['Lat_Proj'] = list(b['geometry'].y)
-    a.to_csv('plots_nb_RANDOMSEED42_1_500_2014_Site2.csv', index=False)
+    a.to_csv('plots_control_nb_seed10.csv', index=False)
     
     
     

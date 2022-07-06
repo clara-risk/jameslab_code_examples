@@ -48,7 +48,7 @@ if __name__ == "__main__":
     df_sites = df_sites[df_sites['Project'] == 'SBW_T']
     df_sites = df_sites[df_sites['Description'] != 'Control'] #!=
     #df_sites = df_sites[df_sites['Note'] != "Matt's"]
-    df_sites = df_sites[df_sites['Name'] == '2019_Site 2']
+    df_sites = df_sites[df_sites['Name'] != '2019_Site 2']
     df_sites_geom= gpd.GeoDataFrame(df_sites, geometry=
                                     gpd.points_from_xy(df_sites['Longitude'],
                                                     df_sites['Latitude']),crs='EPSG:4326')
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     df_sites_proj = df_sites_geom.to_crs('ESRI:102001')
     #print(df_sites_proj)
     
-    df_sites_buffer = df_sites_proj.buffer(1000).to_crs('EPSG:4326')
+    df_sites_buffer = df_sites_proj.buffer(500).to_crs('EPSG:4326')
     #print(df_sites_buffer)
     fig, ax = plt.subplots(1,1)
     df_sites_buffer.plot(ax=ax)
@@ -101,8 +101,8 @@ if __name__ == "__main__":
         fig, ax = plt.subplots(1,1)
         df_clip.plot(ax=ax)
         plt.show()
-        if n == '2019_Site 2': 
-            spacing = 1
+        if n != '2019_Site 2': 
+            spacing = 5
             print(polygon.bounds)
             xmax = polygon.bounds['maxx']
             xmin = polygon.bounds['minx']
@@ -123,6 +123,32 @@ if __name__ == "__main__":
             points = gpd.overlay(points, df_45, how='difference')
             points = points.clip(gpd.GeoDataFrame(geometry=polygon,crs='ESRI:102001'))
             print(len(points))
+
+            polygon0 = polygon
+            print(polygon0)
+            polygon1 = polygon0.difference(df_45['geometry'].unary_union)
+            fig, ax = plt.subplots(1,1)
+            gpd.GeoDataFrame(geometry=polygon1).plot(ax=ax)
+            plt.show()
+            print(polygon1)
+            #polygon2 = gpd.GeoSeries(polygon1,crs='ESRI:102001').difference(df_affected['geometry'])
+            #polygon2 = gpd.GeoDataFrame(geometry=[polygon1],crs='ESRI:102001')
+            if len(points) > 0:
+                fig, ax = plt.subplots(1,1)
+                gpd.GeoDataFrame(geometry=df_clip_proj,crs='ESRI:102001').plot(ax=ax)
+                plt.show()
+                polygon3 = gpd.GeoDataFrame(geometry=polygon1,crs='ESRI:102001').clip(gpd.GeoDataFrame(geometry=df_clip_proj,crs='ESRI:102001'),keep_geom_type=True)
+                print(polygon3)
+                fig, ax = plt.subplots(1,1)
+                polygon3.plot(ax=ax)
+                plt.show()
+                #polygon5 = polygon3.difference(df_affected['geometry'])
+                #print(polygon5)
+                polygon3.to_file(driver = 'ESRI Shapefile', filename= "poly_timmins_"+str(n)+".shp")
+            else:
+                polygon6 = gpd.GeoDataFrame(geometry=polygon,crs='ESRI:102001')
+                polygon6.to_file(driver = 'ESRI Shapefile', filename= "poly_timmins_"+str(n)+".shp")
+                
             if n != '2019_Site 2':
                 spacing = 1
                 num_col = int(abs(xmax - xmin) / spacing)
@@ -192,7 +218,7 @@ if __name__ == "__main__":
                                                     a['Latitude']),crs='ESRI:102001').to_crs('EPSG:4326')
     a['Lon_Proj'] = list(b['geometry'].x)
     a['Lat_Proj'] = list(b['geometry'].y)
-    a.to_csv('plots_timmins_2019site2_1m_750buff.csv', index=False)
+    #a.to_csv('plots_timmins_2019site2_1m_750buff.csv', index=False)
     
     
     
